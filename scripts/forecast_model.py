@@ -158,10 +158,6 @@ def forecast_now():
     fm = ForecastModel(ti='2011-01-01', tf='2020-01-01', station='WIZ', window=2, overlap=0.75,  
         look_forward=2, data_streams=data_streams, root='10zsc_nodsar_forecaster')
 
-    # f,ys=fm.get_features()
-    # print(f.isnull().sum().sum())
-    # print(ys.isnull().sum().sum())
-    
     # set the available CPUs higher or lower as appropriate
     n_jobs =3
     
@@ -191,93 +187,10 @@ def forecast_now():
     fm.plot_accuracy(ys, save=r'{:s}/accuracy.png'.format(fm.plotdir))
 
     FP, FN, TP, TN, dur, mcc = fm._model_alerts(ys.index, ys['consensus'], 0.8, fm.look_forward/((1-fm.overlap)*fm.window),  timedelta(days=(1-fm.overlap)*fm.window))
-    print("The false alarm rate is: ",(FP-4)/FP)
 
-def forecast_AVO():
-    ''' 
-    forecast model for alaksan volcano
-    '''
-    # constants
-    month = timedelta(days=365.25/12)
-    day = timedelta(days=1)
-
-    # train with whakaari data
-        
-    # pull the latest data from GeoNet
-    td1 = TremorData('WIZ')
-    # td1.update()
-
-    # model from 2011 to present day (td.tf)
-    data_streams = ['rsam','mf','hf','dsar']
-    fm1 = ForecastModel(ti='2011-01-01', tf=td1.tf, station='WIZ', window=2, overlap=0.75,  
-        look_forward=2, data_streams=data_streams, root='whakaari_forecaster')
-    
-    # set the available CPUs higher or lower as appropriate
-    n_jobs =3
-    
-    # The online forecaster is trained using all eruptions in the dataset. It only
-    # needs to be trained once, or again after a new eruption.
-    # (Hint: feature matrices can be copied from other models to avoid long recalculations
-    # providing they have the same window length and data streams. Copy and rename 
-    # to *root*_features.csv)
-    drop_features = ['linear_trend_timewise','agg_linear_trend']
-    fm1.train(ti='2011-01-01', tf='2020-01-01', drop_features=drop_features, 
-        retrain=False, n_jobs=n_jobs)      
-    
-    # run forecast from 2011 to 2020
-    # model predictions will be saved to ../predictions/*root*/ 
-    ys1 = fm1.forecast(ti='2011-01-01', tf='2020-01-01', recalculate=False, n_jobs=n_jobs)    
-
-    # # plot forecast and quality metrics
-    # # plots will be saved to ../plots/*root*/
-    # fm1.plot_forecast(ys1, threshold=0.8, xlim = [te1-month/4., te1+month/15.], 
-    #     save=r'{:s}/forecast.png'.format(fm1.plotdir))
-    # fm1.plot_accuracy(ys1, save=r'{:s}/accuracy.png'.format(fm1.plotdir))
-
-    # test with Pavlof
-    # Create tremor data object
-    td2 = TremorData('SSBA')
-    # td2.df = td2.df['2006-01-01 00:00:00':]
-    # td2.update()
-
-    # model from 2005 to present day (td.tf)
-    fm2 = ForecastModel(ti='2009-01-03', tf='2021-01-01', station='SSBA', savefile_type='pkl', window=2, overlap=0.75,  
-        look_forward=2, data_streams=data_streams, root='shishaldin_forecaster')
-        
-    # standardize
-    # Take log
-    # WKR = np.log10(td1.df)
-    # fm2.data.df=np.log10(fm2.data.df)
-
-    # mean and standard deviation shift
-    for freq in ['rsam','mf','hf','dsar']:
-        # fm2.data.df[freq]=(fm2.data.df[freq]-fm2.data.df[freq].mean())/fm2.data.df[freq].std()*WKR[freq].std()+WKR[freq].mean()
-        # # Find percentile of value
-        fm2.data.df[freq]=np.percentile(fm1.data.df[freq],fm2.data.df[freq].rank(pct=True)*100)
-    
-    # convert back from log
-    # fm2.data.df=10**fm2.data.df
-    
-    # run forecast from 2006 to 2020
-    # model predictions will be saved to ../predictions/*root*/ 
-    ys2 = fm2.forecast(ti='2009-01-03', tf='2021-01-01', use_model=fm1.modeldir, recalculate=True, n_jobs=n_jobs)    
-
-    # # plot forecast and quality metrics
-    # # plots will be saved to ../plots/*root*/
-    fm2.plot_forecast(ys2, year=2009, threshold=0.8, xlim = [td2.tes[-1]-month/4., td2.tes[-1]+month/15.], 
-        save=r'{:s}/forecast.png'.format(fm2.plotdir))
-    fm2.plot_accuracy(ys2, save=r'{:s}/accuracy.png'.format(fm2.plotdir))
-
-    # construct a high resolution forecast (10 min updates) around eruptions
-    # note: building the feature matrix might take a while
-    # -fm2.dtw-fm2.dtf-day*6
-    for te in td2.tes:
-        fm2.hires_forecast(ti=te-month/3, tf=te+month/8, root='SSBA_hires_{:d}-{:d}-{:d}'.format(te.day,te.month,te.year),recalculate=True, 
-            save=r'{:s}/forecast_hires_-{:d}-{:d}-{:d}.png'.format(fm2.plotdir,te.day,te.month,te.year), n_jobs=n_jobs,use_model=fm1.modeldir)
 
 if __name__ == "__main__":
     # forecast_dec2019()
     # forecast_test()
     forecast_WIZ()
     # forecast_now()
-    # forecast_AVO()
