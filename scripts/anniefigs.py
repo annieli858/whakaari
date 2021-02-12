@@ -266,7 +266,7 @@ def ax3(eruption):
     rspine.set_position(('axes', 1.05))
     ax_zsc.set_frame_on(True)
     ax_zsc.plot(tzsc,zsc,color='grey',linestyle='dashed', zorder=8, lw=0.75, label='z score')
-    ax_zsc.set_ylim([0,750])
+    ax_zsc.set_ylim([0,700])
     # plt.locator_params(axis='y', nbins=10)
     ax_zsc.set_ylabel("Z score")
     ax3.plot([],[],color='grey',linestyle='dashed', lw=0.75, label='z score')
@@ -279,9 +279,9 @@ def ax3(eruption):
     plt.show()
 
 if __name__ == '__main__':
-    ax1(0)
+    # ax1(0)
     # ax2()
-    # ax3(0)
+    ax3(0)
     # ax3(1)
     # ax3(2)
     # ax3(3)

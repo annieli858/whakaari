@@ -23,8 +23,6 @@ from scipy.optimize import curve_fit
 from corner import corner
 from functools import partial
 from fnmatch import fnmatch
-from geopy import distance
-from sklearn import preprocessing
 
 # ObsPy imports
 try:
@@ -498,19 +496,6 @@ class ForecastModel(object):
         self.data_streams = data_streams
         self.exclude_dates = exclude_dates
         self.data = TremorData(self.station,self.exclude_dates)
-        # if mixed:
-        #     self.fm2 = ForecastModel(window, overlap, look_forward, 'FWVZ', savefile_type='pkl')
-        #     for column in self.fm2.data.df.columns:
-        #         #if column == 'dsar':continue
-        #         dt0 = np.log10(self.data.df[column]).replace([np.inf, -np.inf], np.nan).dropna()
-        #         dt = np.log10(self.fm2.data.df[column]).replace([np.inf, -np.inf], np.nan).dropna()
-        #         mn0,mn = np.mean(dt0), np.mean(dt)
-        #         std0,std = np.std(dt0), np.std(dt)
-                                                    
-        #         self.fm2.data.df[column] = 10**((np.log10(self.fm2.data.df[column])-mn0)/std0*std+mn)
-        #         self.fm2.data.df[column] = self.fm2.data.df[column].fillna(0)
-        # else:
-        #     self.fm2 = None
         
         if any(['_' in ds for ds in data_streams]):
             self.data._compute_transforms()
@@ -566,7 +551,6 @@ class ForecastModel(object):
         """ Checks whether and what models have already been run.
         """
         fls = glob(self._use_model+os.sep+'*.fts')
-        # fls = glob(self.rootdir+os.sep+'models'+os.sep+self._use_model+os.sep+'*.fts')
         if len(fls) == 0:
             raise ValueError("no feature files in '{:s}'".format(self._use_model))
 
@@ -579,7 +563,6 @@ class ForecastModel(object):
             model = get_classifier(classifier)[0]
             pref = type(model).__name__
 
-            # if all([os.path.isfile(self.rootdir+os.sep+'models'+os.sep+self._use_model+os.sep+'{:s}_{:04d}.pkl'.format(pref,ind)) for ind in inds]):
             if all([os.path.isfile(self._use_model+os.sep+'{:s}_{:04d}.pkl'.format(pref,ind)) for ind in inds]):
                 self.classifier = classifier
                 return
@@ -1331,6 +1314,7 @@ class ForecastModel(object):
         # set up figures and axes
         f = plt.figure(figsize=(24,15))
         # 10
+        # Added an extra input so plotting isnt hardcoded
         N = 2021-year
         dy1,dy2 = 0.05, 0.05
         dy3 = (1.-dy1-(N//2)*dy2)/(N//2)
@@ -1342,8 +1326,6 @@ class ForecastModel(object):
             ti,tf = [datetime.strptime('{:d}-01-01 00:00:00'.format(year+i), '%Y-%m-%d %H:%M:%S'),
             # 2012
                 datetime.strptime('{:d}-01-01 00:00:00'.format(year+1+i), '%Y-%m-%d %H:%M:%S')]
-            # ti,tf = [datetime.strptime('{:d}-01-01 00:00:00'.format(self.ti_forecast.year+i), '%Y-%m-%d %H:%M:%S'),
-            #     datetime.strptime('{:d}-01-01 00:00:00'.format(self.ti_forecast.year+1+i), '%Y-%m-%d %H:%M:%S')]
             ax.set_xlim([ti,tf])
             # 2011
             ax.text(0.01,0.95,'{:4d}'.format(year+i), transform=ax.transAxes, va='top', ha='left', size=16)
@@ -1365,7 +1347,7 @@ class ForecastModel(object):
             else:
                 ax.set_yticklabels([])
 
-            # shade training data
+            # shade training data (commented this out for the Alaskan volcano testing plots)
             # ax.fill_between([self.ti_train, self.tf_train],[-0.05,-0.05],[1.05,1.05], color=[0.85,1,0.85], zorder=1, label='training data')            
             for exclude_date_range in self.exclude_dates:
                 t0,t1 = [datetimeify(dt) for dt in exclude_date_range]
@@ -1456,7 +1438,6 @@ class ForecastModel(object):
             ax.plot(t, y, 'c-', label='ensemble mean', zorder=4, lw=0.75)
             ax_ = ax.twinx()
             ax_.set_ylabel('RSAM [$\mu$m s$^{-1}$]')
-            # 0,5
             ax_.set_ylim([0,5])
             ax_.set_xlim(ax.get_xlim())
             if alt_rsam is not None:
@@ -1479,7 +1460,7 @@ class ForecastModel(object):
             tmax = xlim[-1] 
         tf = tmax 
         t0 = tf.replace(hour=0, minute=0, second=0)
-        # 7
+        # 7 - i changed this to 15 
         xts = [t0 - timedelta(days=i) for i in range(15)][::-1]
         lxts = [xt.strftime('%d %b') for xt in xts]
         ax2.set_xticks(xts)
@@ -1499,9 +1480,6 @@ class ForecastModel(object):
         ax1.set_xticklabels(lxts)
         ax1.text(0.025, 0.95, t0.strftime('%Y'), size = 12, ha = 'left', 
             va = 'top', transform=ax1.transAxes)
-
-        
-        # ax2.legend()
 
         plt.savefig(save, dpi=400)
         plt.close(f)
