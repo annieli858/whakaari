@@ -1887,8 +1887,6 @@ def get_data_for_day(i,t0,station):
     datas.append(dsar)
     names.append('dsar')
 
-    # WIZ.plot() 
-
     # write out temporary file
     datas = np.array(datas)
     time = [(ti+(j+1)*600).datetime for j in range(datas.shape[1])]
