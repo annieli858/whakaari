@@ -25,12 +25,10 @@ def forecast_dec2019():
     td = TremorData('WIZ')
         
     # construct model object
-    # 'mf','hf','dsar'
     data_streams = ['zsc_rsam']
     # data_streams = ['rsam','mf','hf','dsar']
     fm = ForecastModel(ti='2011-01-01', tf='2020-01-01', station='WIZ', window=2., overlap=0.75, 
         look_forward=2., data_streams=data_streams, root='dec2019_zscforecaster')
-    # fm.data.plot()
     
     # columns to manually drop from feature matrix because they are highly correlated to other 
     # linear regressors
@@ -101,14 +99,14 @@ def forecast_WIZ():
 
     # plot forecast and quality metrics
     # plots will be saved to ../plots/*root*/
-    # fm.plot_forecast(ys, year= 2011 ,threshold=0.8, xlim = [te-month/4., te+month/15.], 
-    #     save=r'{:s}/forecast.png'.format(fm.plotdir))
-    # fm.plot_accuracy(ys, save=r'{:s}/accuracy.png'.format(fm.plotdir))
+    fm.plot_forecast(ys, year= 2011 ,threshold=0.8, xlim = [te-month/4., te+month/15.], 
+        save=r'{:s}/forecast.png'.format(fm.plotdir))
+    fm.plot_accuracy(ys, save=r'{:s}/accuracy.png'.format(fm.plotdir))
 
     # construct a high resolution forecast (10 min updates) around the Dec 2019 eruption
     # note: building the feature matrix might take a while
-    # fm.hires_forecast(ti=te-month/3, tf=te+month/8, recalculate=True, 
-    #     save=r'{:s}/dec2019_forecast_hires.png'.format(fm.plotdir), n_jobs=n_jobs)
+    fm.hires_forecast(ti=te-month/3, tf=te+month/8, recalculate=True, 
+        save=r'{:s}/dec2019_forecast_hires.png'.format(fm.plotdir), n_jobs=n_jobs)
 
 def forecast_test():
     ''' test scale forecast model
@@ -149,7 +147,7 @@ def forecast_now():
         
     # pull the latest data from GeoNet
     td = TremorData('WIZ')
-    # td.update()
+    td.update()
 
     # model from 2011 to present day (td.tf)
     # data_streams = ['rsam','mf','hf','dsar']
@@ -185,8 +183,6 @@ def forecast_now():
     fm.plot_forecast(ys, year=2011, threshold=0.8, 
         save=r'{:s}/forecast.png'.format(fm.plotdir))
     fm.plot_accuracy(ys, save=r'{:s}/accuracy.png'.format(fm.plotdir))
-
-    FP, FN, TP, TN, dur, mcc = fm._model_alerts(ys.index, ys['consensus'], 0.8, fm.look_forward/((1-fm.overlap)*fm.window),  timedelta(days=(1-fm.overlap)*fm.window))
 
 
 if __name__ == "__main__":

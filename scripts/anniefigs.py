@@ -1,6 +1,6 @@
 import os,sys
 sys.path.insert(0, os.path.abspath('..'))
-from whakaari import*
+from whakaari import *
 #import pygmt
 from datetime import datetime, timedelta, date
 import pandas as pd
