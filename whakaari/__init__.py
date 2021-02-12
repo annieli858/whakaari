@@ -22,6 +22,7 @@ from scipy.signal import stft
 from scipy.optimize import curve_fit
 from corner import corner
 from functools import partial
+from geopy import distance
 from fnmatch import fnmatch
 
 # ObsPy imports
