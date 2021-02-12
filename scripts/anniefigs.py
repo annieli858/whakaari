@@ -109,17 +109,6 @@ def ax1(eruption):
 # AX2
 def ax2():
 
-    # with open(os.sep.join(getfile(currentframe()).split(os.sep)[:-2]+['plots','10zsc_nodsar_forecaster','accuracy.txt']),'r') as fp:
-    #     lines=fp.readlines()
-    #     accuracy_zsc=[]
-    #     alert_fraction_zsc=[]
-    #     for x in lines[1:]:
-    #         if float(x.split(',')[1])>4:
-    #             accuracy_zsc.append((float(x.split(',')[1])-4)/float(x.split(',')[1]))
-    #         else:
-    #             accuracy_zsc.append(0)
-    #         alert_fraction_zsc.append(float(x.split(',')[-2])*100)
-
     # Get z score accuracy data
     data_zsc  = np.genfromtxt('forplotting/accuracy_zsc.txt',dtype=float,delimiter=',',skip_header=1)
     threshold = data_zsc[:,0]
@@ -132,19 +121,6 @@ def ax2():
     # rate_zsc= 4/(FP_zsc + 4)
     # Calculate false alert rate
     rate_zsc=(TP_zsc-1)/N_zsc
-
-    # with open(os.sep.join(getfile(currentframe()).split(os.sep)[:-2]+['plots','nodsar_forecaster','accuracy.txt']),'r') as fp:
-    #     lines=fp.readlines()
-    #     accuracy=[]
-    #     threshold=[]
-    #     alert_fraction=[]
-    #     for x in lines[1:]:
-    #         if float(x.split(',')[1])>4:
-    #             accuracy.append((float(x.split(',')[1])-4)/float(x.split(',')[1]))
-    #         else:
-    #             accuracy.append(0)
-    #         threshold.append(float(x.split(',')[0]))
-    #         alert_fraction.append(float(x.split(',')[-2])*100)
 
     # Get raw accuracy data
     data  = np.genfromtxt('forplotting/accuracy_raw.txt',dtype=float,delimiter=',',skip_header=1)
@@ -219,7 +195,7 @@ def ax3(eruption):
     ys2 =fm2.hires_forecast(ti=te-month/3, tf=te+month/10, recalculate=False, n_jobs=n_jobs)
     
     # set up figure 
-    f = plt.figure()
+    f = plt.figure(figsize=(30,30))
     ax3 = plt.axes([0.1, 0.08, 0.8, 0.4])
 
     # Get _zsc range
@@ -300,6 +276,7 @@ def ax3(eruption):
     ax3.legend(loc='upper left', ncol=3)
     
     plt.savefig('plots/{:s}Fig.png'.format(dates[eruption]))
+    plt.show()
 
 if __name__ == '__main__':
     ax1(0)

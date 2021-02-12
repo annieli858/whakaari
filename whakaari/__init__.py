@@ -189,6 +189,7 @@ class TremorData(object):
             #     data = data.append(self.df[col], ignore_index=True)
             #     Z = abs(stft(data.values, window='nuttall', nperseg=seg*6, noverlap=seg*6-1, boundary=None)[2])
             #     self.df['stft_'+col] = np.mean(Z[freq:freq+2,:],axis=0)
+
     def _is_eruption_in(self, days, from_time):
         """ Binary classification of eruption imminence.
 
@@ -337,7 +338,6 @@ class TremorData(object):
         # set up figures and axes
         f = plt.figure(figsize=(24,15))
         N = 10
-        # N=2020-year+1
         dy1,dy2 = 0.05, 0.05
         dy3 = (1.-dy1-(N//2)*dy2)/(N//2)
         dx1,dx2 = 0.43,0.03
