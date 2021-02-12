@@ -3,11 +3,9 @@ __pycache__/
 models/
 features/
 predictions/
-plots/
 controller/
 _tmp/
 .vscode/
-*.png
 scripts/*.txt
 scripts/*_alert
 scripts/alert.csv
